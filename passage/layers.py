@@ -4,7 +4,7 @@ from theano.tensor.extra_ops import repeat
 from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 from copy import deepcopy
 
-from theano_utils import shared0s, floatX
+from theano_utils import shared0s, sharedNs, floatX
 import activations
 import inits
 
@@ -126,6 +126,11 @@ class SimpleRecurrent(object):
             return out[-1]
 
 class LstmRecurrent(object):
+    """
+    LSTM recurrent unit, which has its forget gate biases initialized to 1,
+    as recommended by:
+    http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf
+    """
 
     def __init__(self, size=256, activation='tanh', gate_activation='steeper_sigmoid', init='orthogonal', truncate_gradient=-1, seq_output=False, p_drop=0., weights=None):
         self.settings = locals()
@@ -145,12 +150,12 @@ class LstmRecurrent(object):
         self.n_in = l_in.size
 
         self.w_i = self.init((self.n_in, self.size))
-        self.w_f = self.init((self.n_in, self.size))
+        self.w_f = self.init(n_in, self.size))
         self.w_o = self.init((self.n_in, self.size))
         self.w_c = self.init((self.n_in, self.size))
 
         self.b_i = shared0s((self.size))
-        self.b_f = shared0s((self.size))
+        self.b_f = sharedNs((self.size), 1)
         self.b_o = shared0s((self.size))
         self.b_c = shared0s((self.size))
 
